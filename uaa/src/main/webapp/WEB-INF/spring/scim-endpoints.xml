@@ -247,16 +247,22 @@
         </constructor-arg>
     </bean>
 
+    <!--#oauth2.hasAnyScope('clients.admin') or #oauth2.hasScopeInAuthZone('zones.{zone.id}.admin')-->
+    <bean name="self" class="org.cloudfoundry.identity.uaa.oauth.expression.IsUserSelfCheck">
+
+    </bean>
+
     <http  name="scimUsers" pattern="/Users/**" create-session="stateless" authentication-manager-ref="emptyAuthenticationManager"
-        entry-point-ref="oauthAuthenticationEntryPoint" access-decision-manager-ref="userAccessDecisionManager"
-        xmlns="http://www.springframework.org/schema/security" use-expressions="false">
-        <intercept-url pattern="/Users/*/verify" access="scope=scim.write,scope=scim.create" method="GET" />
-        <intercept-url pattern="/Users/**" access="scope=scim.read,user=self" method="GET" />
-        <intercept-url pattern="/Users/*" access="scope=scim.write" method="DELETE" />
-        <intercept-url pattern="/Users/*" access="scope=scim.write,user=self" method="PUT" />
-        <intercept-url pattern="/Users" access="scope=scim.write,scope=scim.create" method="POST" />
+        entry-point-ref="oauthAuthenticationEntryPoint"
+        xmlns="http://www.springframework.org/schema/security" use-expressions="true">
+        <intercept-url pattern="/Users/*/verify" access="#oauth2.hasAnyScope('scim.write','scim.create') or #oauth2.hasScopeInAuthZone('zones.{zone.id}.admin')" method="GET" />
+        <intercept-url pattern="/Users/**" access="#oauth2.hasAnyScope('scim.read') or #oauth2.hasScopeInAuthZone('zones.{zone.id}.admin') or @self.isSelf(request,1)" method="GET" /> <!-- add self logic -->
+        <intercept-url pattern="/Users/*" access="#oauth2.hasAnyScope('scim.write') or #oauth2.hasScopeInAuthZone('zones.{zone.id}.admin')" method="DELETE" />
+        <intercept-url pattern="/Users/*" access="#oauth2.hasAnyScope('scim.write') or #oauth2.hasScopeInAuthZone('zones.{zone.id}.admin') or @self.isSelf(request,1)" method="PUT" /> <!-- add self logic -->
+        <intercept-url pattern="/Users" access="#oauth2.hasAnyScope('scim.write','scim.create') or #oauth2.hasScopeInAuthZone('zones.{zone.id}.admin')" method="POST" />
         <intercept-url pattern="/**" access="ROLE_NONEXISTENT" />
-        <custom-filter ref="scimResourceAuthenticationFilter" position="PRE_AUTH_FILTER" />
+        <expression-handler ref="oauthWebExpressionHandler" />
+        <custom-filter ref="resourceAgnosticAuthenticationFilter" position="PRE_AUTH_FILTER" />
         <access-denied-handler ref="oauthAccessDeniedHandler" />
         <csrf disabled="true"/>
     </http>
