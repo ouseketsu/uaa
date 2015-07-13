@@ -194,20 +194,6 @@
         <csrf disabled="true"/>
     </http>
 
-    <bean id="userAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
-        <constructor-arg>
-            <list>
-                <bean id="userVoter" class="org.cloudfoundry.identity.uaa.scim.security.UserVoter" />
-                <bean class="org.springframework.security.oauth2.provider.vote.ScopeVoter">
-                    <property name="scopePrefix" value="scope=" />
-                    <property name="throwException" value="false" />
-                </bean>
-                <bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
-                <bean class="org.springframework.security.access.vote.RoleVoter" />
-            </list>
-        </constructor-arg>
-    </bean>
-
     <bean name="self" class="org.cloudfoundry.identity.uaa.oauth.expression.IsUserSelfCheck"/>
 
     <http  name="scimUsers" pattern="/Users/**" create-session="stateless" authentication-manager-ref="emptyAuthenticationManager"
