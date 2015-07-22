@@ -30,7 +30,7 @@ public class UaaStringUtilsTest {
 
         properties = new Properties();
         for (String key : map.keySet()) {
-            properties.put(key, (String)map.get(key));
+            properties.put(key, map.get(key));
         }
 
         Map<String, Object> submap = new HashMap<>(map);
