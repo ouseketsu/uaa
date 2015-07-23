@@ -25,6 +25,9 @@ public class RestrictUaaScopesClientValidator implements ClientDetailsValidator 
         this.uaaScopes = uaaScopes;
     }
 
+    public UaaScopes getUaaScopes() {
+        return uaaScopes;
+    }
 
     @Override
     public ClientDetails validate(ClientDetails clientDetails, Mode mode) throws InvalidClientDetailsException {
